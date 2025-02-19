@@ -1,0 +1,10 @@
+const express = require('express');
+const router = express.Router();
+const multer = require('multer');
+const storage = multer.memoryStorage();
+const upload = multer({ storage: storage });
+const accountController = require('../../controllers/account/accountController');
+router.post("/uploadExcel", upload.single('file'), accountController.excelUploads);
+router.get("/modelNumbers", accountController.modelNumbers);
+router.post("/fetchModuleData", accountController.fetchModuleData);
+module.exports = router;
