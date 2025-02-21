@@ -25,14 +25,14 @@ const clientAdd = async(req,res) =>{
     try {
         // console.log(req.body)
         // const errors = validationResult(req);
-        if(!errors.isEmpty()){
-            // console.log(errors);
-            return res.status(500).json({
-            success:false,
-            msg:'Errors',
-            errors:errors.array()
-            })
-        }
+        // if(!errors.isEmpty()){
+        //     // console.log(errors);
+        //     return res.status(500).json({
+        //     success:false,
+        //     msg:'Errors',
+        //     errors:errors.array()
+        //     })
+        // }
         const {name,email,empID,mobile,source,stageID,stateID,district,city,kwpInterested,remark} = req.body;
 
         //find TLID for store data 
@@ -41,9 +41,9 @@ const clientAdd = async(req,res) =>{
         if(empID != null){
             empData = await Employee.findById(empID).select("teamLeader").exec();
         }
-
+        console.log()
         const addClient = new Client({
-            name,email,empID,mobile,source,stageID,stateID,district,city,kwpInterested,remark,CurrentDate:Date.now(), TLID:empData.teamLeader
+            name,email,empID,mobile,source,stageID,stateID,district,city,kwpInterested,remark,CurrentDate:Date.now(), TLID:empData?.teamLeader
         })
 
        
@@ -67,6 +67,7 @@ const clientAdd = async(req,res) =>{
             });
         }
     } catch (error) {
+        console.log(error);
         return res.status(400).json({
             success:false,
             msg:error.message

@@ -22,6 +22,7 @@ router.post("/addtionalclientDetails",upload.fields([
    {name:'electricitybill',maxCount:1},
    {name:'Video',maxCount:1},
 ]),empC.updateclient);
+router.put("/UpdateEmployee",empC.updateEmployee?empC.updateEmployee:tempFun);
 
 // empController.emp();
 

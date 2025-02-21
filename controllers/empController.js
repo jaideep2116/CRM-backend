@@ -1,6 +1,8 @@
 const assignEmp = require("../models/assignEmployee");
 const client = require("../models/client");
 const employee = require("../models/employee")
+const District= require("../models/district")
+
 const startDateConvertor  = require('../helpers/common/dateConversion/startDate');
 const endDateConvertor = require("../helpers/common/dateConversion/endDate");
 const StageActivity = require('../models/stageActivity');
@@ -211,6 +213,79 @@ const fetchLeads = async(req,res)=>{
         })
     }
  }
+
+ const  
+ updateEmployee=async(req,res)=>{
+    try{
+        const {empId,name,teamleader,mobile,stateID,district,status} = req.body;
+        console.log(empId);
+        console.log(stateID);
+       
+        
+        // if(!district || !Array.isArray(district) || district.length==0){
+        //     res.status(400).json({
+        //         message:"District cannot be empty"
+        //     })
+        // }
+        const empdetail=await employee.findOneAndUpdate({empID:empId},{
+            $set:{
+                name:name,
+                teamLeader:teamleader,
+                mobile:mobile,
+                stateID:stateID,
+                district:district
+              
+                
+            }
+           
+        })
+        if(!empdetail){
+            return res.status(500).json({
+                success:false,
+                msg:'Employeee ID not exits!'
+            })
+        }
+       
+        
+
+        for (let state of stateID) {
+            console.log(state);
+            const districtlist = await District.find({ stateID: state });
+            console.log(districtlist)
+           
+                 
+                  districtlist.district = districtlist.district?.map(d => {
+                    if (district.includes(d.name)  && d.status==false) {
+                      d.status=true;
+                        
+                    }
+                    return d;
+                });
+             districtlist.save();
+         
+        }
+        
+        
+
+
+
+        res.status(200).json({
+            success:true,
+            message:"Updated Succesfully",
+            data:empdetail,
+            districtlist:districtlist
+
+        })
+
+    }catch(err){
+        console.log(err);
+        res.status(400).json({
+            success:false,
+            message:"Error in up-dating data",
+
+        })
+    }
+ }
 module.exports ={
     assignEmployee,
     showVisitingList,
@@ -219,6 +294,7 @@ module.exports ={
     remark,
     empdetail,
     fetchLeads,
-    updateclient
+    updateclient,
+    updateEmployee
     
 }

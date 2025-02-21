@@ -9,7 +9,7 @@ const { clientRegisterValidation  } = require("../helpers/client/clientValidatio
 const storage = multer.memoryStorage();
 const upload = multer({ storage: storage });
 
-router.post("/clientAdd",clientRegisterValidation, clientController.clientAdd); //completed 2.0
+router.post("/clientAdd", clientController.clientAdd); //completed 2.0
 router.get("/fetchClients", clientController.fetchClients); // completed 3.0
 router.put('/updateClient',clientController.updateClient); //completed 2.0
 router.post('/fetchByFile',  upload.single('file'), clientController.fetchByFile); //completed 2.0
