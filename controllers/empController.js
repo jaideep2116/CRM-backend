@@ -220,6 +220,7 @@ const fetchLeads = async(req,res)=>{
         const {empId,name,teamleader,mobile,stateID,district,status} = req.body;
         console.log(empId);
         console.log(stateID);
+        console.log(district);
        
         
         // if(!district || !Array.isArray(district) || district.length==0){
@@ -234,9 +235,7 @@ const fetchLeads = async(req,res)=>{
                 mobile:mobile,
                 stateID:stateID,
                 district:district
-              
-                
-            }
+            },
            
         })
         if(!empdetail){
@@ -248,34 +247,76 @@ const fetchLeads = async(req,res)=>{
        
         
 
-        for (let state of stateID) {
-            console.log(state);
-            const districtlist = await District.find({ stateID: state });
-            console.log(districtlist)
-           
-                 
-                  districtlist.district = districtlist.district?.map(d => {
-                    if (district.includes(d.name)  && d.status==false) {
-                      d.status=true;
+        // for (let state of stateID) {
+        // //     console.log(state);
+        // //     const districtlist = await District.find({ stateID: state });
+        // //     console.log(districtlist)
+        // //           districtlist.district = districtlist.district?.map(d => {
+        // //             if (district.includes(d.name)  && d.status==false) {
+        // //               d.status=true;
                         
-                    }
-                    return d;
-                });
-             districtlist.save();
-         
+        // //             }
+        // //             return d;
+        // //         });
+        // //      await districtlist.save();
+        // // }
+        
+        // for (let state of stateID) {
+        //     console.log(state);
+            
+        //     // Fetch all district documents matching the stateID
+        //     const districtlist = await District.find({ stateID: state });
+        
+        //     console.log(districtlist);
+        
+        //     // Iterate over each district document and update
+        //     for (let district of districtlist) {
+        //         district.district = district.district?.map(d => {
+        //             if (district.includes(d.name) && d.status === false) {
+        //                 d.status = true;
+        //             }
+        //             return d;
+        //         });
+        
+        //         // Save each updated document
+        //         await district.save();
+        //     }
+        // }
+        for( let eachState of stateID ){
+            // Find the District document by stateID for change district status value
+            const districtDoc = await District.findOne({ stateID: eachState });
+            console.log(districtDoc)
+            let isModified = false;
+
+            // Loop through each district in the document and toggle the status if the name matches
+            districtDoc.district = districtDoc?.district.map(d => {
+                if (district?.includes(d.name)) {
+                    d.status = !d.status; // Toggle status
+                    isModified = true; // Indicate that we made a change
+                }
+                return d;
+            });
+            if (isModified) {
+                await districtDoc.save();
+            }
         }
         
+        if(await empdetail.save()){
+            res.status(200).json({ 
+                success:true,
+                msg:'Employee updated succesfully.',
+                data:empdetail,
+            });
+        }else{
+            res.status(400).json({ 
+                success:false,
+                msg:'Something is missing!'
+            });
+        }
+
+
+
         
-
-
-
-        res.status(200).json({
-            success:true,
-            message:"Updated Succesfully",
-            data:empdetail,
-            districtlist:districtlist
-
-        })
 
     }catch(err){
         console.log(err);
