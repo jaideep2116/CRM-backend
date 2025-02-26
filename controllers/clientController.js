@@ -15,11 +15,14 @@ const endDateConvertor = require('../helpers/common/dateConversion/endDate');
 const equalDateFunction = require('../helpers/common/dateConversion/equalDate');
 const FollowUp = require('../models/followUp');
 // const welcomeTemplate = require("../helpers/aiSensy/welcomeTemplate");
-const Employee = require("../models/employee");
+const Employee= require("../models/employee");
 const TeamLeader = require("../models/teamLeader");
 const findEmpIDAndTLID =  require('../helpers/employee/findEmpIDAndTLID');
 const CurrentDate = require('../helpers/common/dateConversion/currentDate');
 const mongoose = require('mongoose');
+const employee = require('../models/employee');
+const Department= require("../models/department");
+const Extradetails= require("../models/Extradetails");
 
 const clientAdd = async(req,res) =>{
     try {
@@ -213,7 +216,7 @@ const fetchClients = async(req,res) =>{
             { $skip: skipValue },       // Skip documents for pagination
             ...(limitValue !== undefined ? [{ $limit: limitValue }] : [])
         ]);
-
+  
 
         const updatedClients =await Promise.all(uniqueClients.map(async(client) =>{
             const clientID =await client._id.toString();
@@ -272,14 +275,23 @@ const fetchClients = async(req,res) =>{
 }
 const updateClient = async(req,res) =>{
     try {
+        console.log("hgff",req.query || req.body || req.params);
         let newVisit = null;
-        const {kwpInterested, type, email, stageID, assignEmp, visitingDate, followUpDate, remark, clientID, empID} = req.body;
-        if(!clientID){
+        const {kwpInterested, type, email, stageID, selectedFieldSales, visitingDate, followUpDate, remark, clientID, empID,address,location} = req.body;
+        if(!req?.body?.clientID){
             return res.status(400).json({
                 success:false,
                 msg:"client Id not Exist!"
             });
         }
+        const ElectrcityBill=await req.files["electricitybill"]?`${process.env.SERVER_URL}uploads/ElectricityBill/${req.files["electricitybill"][0].filename}`:null;
+        console.log(ElectrcityBill);
+        const   ProposalPdf=await req.files["proposalpdf"]?`${process.env.SERVER_URL}uploads/proposalpdf/${req.files["proposalpdf"][0].filename}`:null;
+        const additionalsdetails=new Extradetails({
+       ElectrcityBill,ProposalPdf
+        })
+        additionalsdetails.save();
+
         if(followUpDate || visitingDate){ // check given date is not less the current date 
             const queryData = new Date(followUpDate || visitingDate);
             const today = new Date();
@@ -306,7 +318,7 @@ const updateClient = async(req,res) =>{
             console.log("missin Success")
             const newVisitingDate = await equalDateFunction(visitingDate);
             const visit = new AssignEmployee({
-                clientID, fieldEmpID:assignEmp, visitingDate:newVisitingDate
+                clientID, fieldEmpID:selectedFieldSales, visitingDate:newVisitingDate
             });
             newVisit = await visit.save();
             console.log(newVisit)
@@ -315,10 +327,13 @@ const updateClient = async(req,res) =>{
             kwpInterested:kwpInterested,
             type:type,
             email:email,
-            stageID:stageID
+            stageID:stageID,
+            AdditionalDetails:additionalsdetails._id,
+            address:address,
+            "coordinates.coordinates": location
         }
         
-        const updateClient = await Client.findByIdAndUpdate(clientID, UpdatedData, { new:true, runValidators: true });
+        const updateClient = await Client.findByIdAndUpdate(clientID, UpdatedData, { new:true, runValidators: true }).populate("AdditionalDetails");
         if(!updateClient){
             return res.status(404).json({
                 success:false,
@@ -331,7 +346,8 @@ const updateClient = async(req,res) =>{
         }
         return res.status(200).json({
             success:true,
-            msg:"Update SuccessFully ."
+            msg:"Update SuccessFully .",
+            data:updateClient,
         });
     } catch (error) {
         console.log(error)
@@ -530,11 +546,117 @@ const bulkAssign = async(req,res) =>{
         })
     }
 }
+
+// const Fetchemployee=async(req,res)=>{
+//     try{
+//         // const{Statename}=req.body;
+//         // if(!Statename){
+//         //     res.status(400).json({
+//         //         success:false,
+//         //         message:"please enter a valid state"
+//         //     })
+            
+//         // }
+//         const arr=[];
+//         const user = await Employee.find({empID:'CL001'})
+//         .populate("department")
+//         .populate("teamLeader")
+//         .populate("stateID");
+//         console.log(user);
+//         console.log(user.stateID)
+      
+
+//     //   console.log(user?.stateID);
+//     //     console.log(user);
+//         res.status(200).json({
+//             message:"succesfulyy fetched",
+            
+//         })
+
+//     }catch(error){
+//    console.log(error);
+//    res.status(400).json({
+//     status:false,
+//     message:"Error in assign employee",
+
+//    })
+//     }
+// }
+
+const  Assignfieldemployee=async(req,res)=>{
+    try{
+   
+        const{Statename}=req.body;
+        if(!Statename){
+            res.status(400).json({
+            message:"State not found",
+            status:false,
+            })
+        }
+
+     
+  
+
+  const response= await  employee.aggregate([
+    
+        // populate the states
+        {
+            $lookup: {
+                from: "states", // Collection name for State
+                localField: "stateID",
+                foreignField: "_id",
+                as: "statedetails"
+            },
+            
+        },{
+            $unwind:"$statedetails"
+        },{
+            $match:{
+                "statedetails.state":Statename,
+            }
+        }, {
+            $lookup: {
+                from: "departments",
+                localField: "department",
+                foreignField: "_id",
+                as: "depratmentdetails",
+            }
+        },
+    
+        { $unwind: "$depratmentdetails" }, // Unwind department details
+    
+        // Match only employees from "Field Sales" department
+        {
+            $match: {
+                "depratmentdetails.department": "Field Sales"
+            }
+        }
+        
+    
+  ]);
+
+
+
+     
+ 
+     res.status(200).json({
+         message:"success",
+         data:response,
+     })
+ 
+    }catch(err){
+     console.log(err);
+ res.status(400).json({
+     message:"error",
+ })
+    }
+ }
 module.exports = {
     clientAdd,
     fetchClients,
     updateClient,
     fetchByFile,
     fetchAssignEmployee,
-    bulkAssign
+    bulkAssign,
+   Assignfieldemployee
 }

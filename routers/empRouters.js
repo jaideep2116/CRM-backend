@@ -21,6 +21,9 @@ router.post("/addtionalclientDetails",upload.fields([
    {name:'pancard',maxCount:1},
    {name:'electricitybill',maxCount:1},
    {name:'Video',maxCount:1},
+   {name:'dimensions',maxCount:1},
+   {name:'cancelcheack',maxCount:1},
+   {name:'proposalpdf',maxCount:1},
 ]),empC.updateclient);
 router.put("/UpdateEmployee",empC.updateEmployee?empC.updateEmployee:tempFun);
 

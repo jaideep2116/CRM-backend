@@ -17,6 +17,14 @@ const Details= new mongoose.Schema({
             type:String,
             default:null
         },
+        Dimension:{
+            type:String,
+            default:null
+        },
+        CancelCheack:{
+            type:String,
+            default:null,
+        },
         AccountNo:{
             type:Number
         },
@@ -26,6 +34,10 @@ const Details= new mongoose.Schema({
         BankAddress:{
             type:String,
         },
+        ProposalPdf:{
+            type:String,
+            default:null,
+        }
 })
 const Extradetail=mongoose.model("ExtraDetail",Details);
 module.exports=Extradetail;

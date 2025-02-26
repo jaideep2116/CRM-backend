@@ -8,12 +8,20 @@ const { clientRegisterValidation  } = require("../helpers/client/clientValidatio
 
 const storage = multer.memoryStorage();
 const upload = multer({ storage: storage });
+const uploadd=require("../middlewares/Multer")
 
 router.post("/clientAdd", clientController.clientAdd); //completed 2.0
 router.get("/fetchClients", clientController.fetchClients); // completed 3.0
-router.put('/updateClient',clientController.updateClient); //completed 2.0
+router.put('/updateClient',uploadd.fields([
+   {name:'electricitybill',maxCount:1},
+   {name:'proposalpdf',maxCount:1},
+]),clientController.updateClient); //completed 2.0
 router.post('/fetchByFile',  upload.single('file'), clientController.fetchByFile); //completed 2.0
 router.get("/fetchAssignEmployee", clientController.fetchAssignEmployee); //completed 1.5
 router.put("/bulkAssign", clientController.bulkAssign) //completed 2.0
+router.post("/FetchAssignemployee",clientController.Assignfieldemployee);
 // router.post()
 module.exports = router;
+
+
+

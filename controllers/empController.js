@@ -2,6 +2,7 @@ const assignEmp = require("../models/assignEmployee");
 const client = require("../models/client");
 const employee = require("../models/employee")
 const District= require("../models/district")
+require("dotenv").config();
 
 const startDateConvertor  = require('../helpers/common/dateConversion/startDate');
 const endDateConvertor = require("../helpers/common/dateConversion/endDate");
@@ -180,17 +181,21 @@ const fetchLeads = async(req,res)=>{
     }
  }
 
+
  const updateclient=async(req,res)=>{
     try{
         const{AccountNo,IFSC,BankAddress}=req.body;
 
-        const AadharCard= req.files["aadhaarPhotos"] ? `/uploads/aadhar/${req.files["aadhaarPhotos"][0].filename}` : null;
-        const  PanCard = req.files["pancard"] ? `/uploads/pancard/${req.files["pancard"][0].filename}` : null;
-        const ElectrcityBill=req.files["electricitybill"]?`/uploads/ElectricityBill/${req.files["electricitybill"][0].filename}`:null;
-        const Videos=req.files["Video"]?`/uploads/Video/${req.files["Video"][0].filename}`:null;
-
+        const AadharCard= req.files["aadhaarPhotos"] ? `${process.env.SERVER_URL}uploads/aadhar/${req.files["aadhaarPhotos"][0].filename}` : null;
+        const  PanCard = req.files["pancard"] ? `${process.env.SERVER_URL}uploads/pancard/${req.files["pancard"][0].filename}` : null;
+        const ElectrcityBill=req.files["electricitybill"]?`${process.env.SERVER_URL}uploads/ElectricityBill/${req.files["electricitybill"][0].filename}`:null;
+        const Videos=req.files["Video"]?`${process.env.SERVER_URL}uploads/Video/${req.files["Video"][0].filename}`:null;
+        const Dimension=req.files["dimensions"]?`${process.env.SERVER_URL}uploads/dimensions/${req.files["dimensions"][0].filename}`:null;
+        const CancelCheack=req.files["cancelcheack"]?`${process.env.SERVER_URL}uploads/cancelcheack/${req.files["cancelcheack"][0].filename}`:null;
+         const   ProposalPdf=req.files["proposalpdf"]?`${process.env.SERVER_URL}uploads/proposalpdf/${req.files["proposalpdf"][0].filename}`:null;
+       
         const ExtraDetails= new Extradetail({
-            AccountNo,IFSC,BankAddress,AadharCard,PanCard,ElectrcityBill,Videos
+            AccountNo,IFSC,BankAddress,AadharCard,PanCard,ElectrcityBill,Videos,Dimension,CancelCheack, ProposalPdf
         })
         ExtraDetails.save();
 

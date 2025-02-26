@@ -53,6 +53,15 @@ const clientSchema = mongoose.Schema({
         type:String,
         default:null
     },
+    AdditionalDetails:{
+        type:mongoose.Schema.Types.ObjectId,
+        ref:"ExtraDetail",
+
+    },
+    coordinates: {
+        type: { type: String, default: "Point" }, // GeoJSON type
+        coordinates: { type: [Number] } // [longitude, latitude]
+    },
      
  
      
