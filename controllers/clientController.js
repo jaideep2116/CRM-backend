@@ -278,12 +278,16 @@ const updateClient = async(req,res) =>{
         console.log("hgff",req.query || req.body || req.params);
         let newVisit = null;
         const {kwpInterested, type, email, stageID, selectedFieldSales, visitingDate, followUpDate, remark, clientID, empID,address,location} = req.body;
+        const [latitude, longitude] = location.split(", ").map(Number);
+        
         if(!req?.body?.clientID){
             return res.status(400).json({
                 success:false,
                 msg:"client Id not Exist!"
             });
         }
+
+        
         const ElectrcityBill=await req.files["electricitybill"]?`${process.env.SERVER_URL}uploads/ElectricityBill/${req.files["electricitybill"][0].filename}`:null;
         console.log(ElectrcityBill);
         const   ProposalPdf=await req.files["proposalpdf"]?`${process.env.SERVER_URL}uploads/proposalpdf/${req.files["proposalpdf"][0].filename}`:null;
@@ -330,7 +334,9 @@ const updateClient = async(req,res) =>{
             stageID:stageID,
             AdditionalDetails:additionalsdetails._id,
             address:address,
-            "coordinates.coordinates": location
+            latitude:latitude,
+            longitude:longitude,
+            
         }
         
         const updateClient = await Client.findByIdAndUpdate(clientID, UpdatedData, { new:true, runValidators: true }).populate("AdditionalDetails");

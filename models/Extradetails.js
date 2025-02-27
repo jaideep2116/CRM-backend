@@ -37,6 +37,10 @@ const Details= new mongoose.Schema({
         ProposalPdf:{
             type:String,
             default:null,
+        },
+        Remainder:{
+            type:String,
+            default:null,
         }
 })
 const Extradetail=mongoose.model("ExtraDetail",Details);

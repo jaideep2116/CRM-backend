@@ -27,18 +27,18 @@ const storage = multer.diskStorage({
         cb(null,`${Date.now()}-${file.originalname}`);
     }
 })
-const fileFilter = (req, file, cb) => {
-    if (
-        file.mimetype === "application/pdf" || // PDF files
-        file.mimetype.startsWith("image/")    // Images (Aadhar, PAN)
-    ) {
-        cb(null, true);
-    } else {
-        cb(new Error("Invalid file type! Only PDFs and Images are allowed."), false);
-    }
-};
+// const fileFilter = (req, file, cb) => {
+//     if (
+//         file.mimetype === "application/pdf" || // PDF files
+//         file.mimetype.startsWith("image/")    // Images (Aadhar, PAN)
+//     ) {
+//         cb(null, true);
+//     } else {
+//         cb(new Error("Invalid file type! Only PDFs and Images are allowed."), false);
+//     }
+// };
 
-const upload=multer({storage:storage,fileFilter});
+const upload=multer({storage:storage});
 
 module.exports=upload;
 
