@@ -26,13 +26,16 @@ const Details= new mongoose.Schema({
             default:null,
         },
         AccountNo:{
-            type:Number
+            type:Number,
+            default:null
         },
         IFSC:{
             type:String,
+            default:null
         },
         BankAddress:{
             type:String,
+            default:null
         },
         ProposalPdf:{
             type:String,
